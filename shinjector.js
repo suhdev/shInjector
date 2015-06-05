@@ -1,6 +1,6 @@
-var c = Object.prototype.toString.call,
+var c = Object.prototype.toString,
 	d = function isSth(o,e){
-		return c(o) === '[object '+e+']';
+		return c.call(o) === '[object '+e+']';
 	},shUtility = {
 	map:function(arr,fn){
 		var a = [],k; 
@@ -17,16 +17,16 @@ var c = Object.prototype.toString.call,
 		return a;
 	},
 	isString:function(t){
-		return isSth(t,'String');
+		return d(t,'String');
 	},
 	isArray:function(t){
-		return isSth(t,'Array');
+		return d(t,'Array');
 	},
 	isObject:function(t){
-		return isSth(t,'Object');
+		return d(t,'Object');
 	},
 	isFunction:function(t){
-		return isSth(t,'Function');
+		return d(t,'Function');
 	},
 	forEach:function(arr,fn){
 		for(var k in arr){
@@ -45,7 +45,7 @@ var SHLOGLEVEL = {
 		}),function(total,e){
 		return total | e; 
 	},0);
-},eeeee=Array.prototype.slice.call;
+},eeeee=Array.prototype.slice;
 shLogger.prototype = {
 	log:function(type,args){
 		var msg = args.join('');
@@ -54,13 +54,13 @@ shLogger.prototype = {
 		}
 	},
 	debug:function(){
-		this.log('debug',eeeee(arguments,0));
+		this.log('debug',eeeee.call(arguments,0));
 	},
 	info:function(){
-		this.log('info',eeeee(arguments,0));
+		this.log('info',eeeee.call(arguments,0));
 	},
 	error:function(){
-		this.log('log',eeeee(arguments,0));
+		this.log('log',eeeee.call(arguments,0));
 	}
 }; 
 
@@ -145,7 +145,7 @@ shInjector.prototype = {
 					if (self.s){
 						throw err;
 					}else {
-						self.logger.error('Component `'+fnName+'` could not be instanitated because one of its dependencies could not be found: '+err.message);
+						self.l.error('Component `'+fnName+'` could not be instanitated because one of its dependencies could not be found: '+err.message);
 						
 					}
 				}
