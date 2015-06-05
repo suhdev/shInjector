@@ -1,75 +1,79 @@
-var shUtility = {
+var c = Object.prototype.toString.call,
+	d = function isSth(o,e){
+		return c(o) === '[object '+e+']';
+	},shUtility = {
 	map:function(arr,fn){
-		var a = []; 
-		for(var key in arr){
-			a[key] = fn(arr[key]); 
+		var a = [],k; 
+		for(k in arr){
+			a[k] = fn(arr[k]); 
 		}
 		return a; 
 	},
-	reduce:function(arr,fn,start){
-		var a = start; 
-		for(var key in arr){
-			a = fn(a,arr[key]); 
+	reduce:function(arr,fn,s){
+		var a = s,k; 
+		for(k in arr){
+			a = fn(a,arr[k]); 
 		}
 		return a;
 	},
 	isString:function(t){
-		return Object.prototype.toString.call(t) === '[object String]';
+		return isSth(t,'String');
 	},
 	isArray:function(t){
-		return Object.prototype.toString.call(t) === '[object Array]';
+		return isSth(t,'Array');
 	},
 	isObject:function(t){
-		return Object.prototype.toString.call(t) === '[object Object]';
+		return isSth(t,'Object');
 	},
 	isFunction:function(t){
-		return Object.prototype.toString.call(t) === '[object Function]'; 
+		return isSth(t,'Function');
 	},
 	forEach:function(arr,fn){
-		for(var key in arr){
-			fn(arr[key],key); 
+		for(var k in arr){
+			fn(arr[k],k); 
 		}
 	}
 };
-var SH_LOGGER_LEVELS = {
-	info: 		0x00001,
-	debug: 		0x00002,
-	error: 		0x00004,
-	log: 		0x00008
-}; 
-var shLogger = function(level){
+var SHLOGLEVEL = {
+	info: 		0x1,
+	debug: 		0x2,
+	error: 		0x4,
+	log: 		0x8
+},shLogger = function(level){
 	this.level = shUtility.reduce(shUtility.map(level.split(/ /),function(e){
-			return SH_LOGGER_LEVELS[e];
+			return SHLOGLEVEL[e];
 		}),function(total,e){
 		return total | e; 
 	},0);
-};
-
+},eeeee=Array.prototype.slice.call;
 shLogger.prototype = {
 	log:function(type,args){
 		var msg = args.join('');
-		if (SH_LOGGER_LEVELS[type] & this.level){
+		if (SHLOGLEVEL[type] & this.level){
 			console[type](msg);
 		}
 	},
 	debug:function(){
-		this.log('debug',Array.prototype.slice.call(arguments,0));
+		this.log('debug',eeeee(arguments,0));
 	},
 	info:function(){
-		this.log('info',Array.prototype.slice.call(arguments,0));
+		this.log('info',eeeee(arguments,0));
 	},
 	error:function(){
-		this.log('log',Array.prototype.slice.call(arguments,0));
+		this.log('log',eeeee(arguments,0));
 	}
 }; 
 
 
-var shInjector = function shInjector(strict,logger){
-	this.injectables = {};
-	this.components = {}; 
-	this.logger = logger || new shLogger('info');
-	this.injectables.logger = this.logger; 
-	this.strict = strict || false;
+var shInjector = function shInjector(s,logger){
+	//injectables object
+	this.inj = {};
+	//instantiated components 
+	this.cpts = {}; 
+	this.l = logger || new shLogger('info');
+	this.inj.logger = this.l; 
+	//strict flag
+	this.s = s || false;
 	this.stack = [];
 };
 
@@ -77,20 +81,20 @@ shInjector.prototype = {
 	register:function(name,generator){
 		var n = shUtility.isString(name)?name:((name.name)?name.name:((shUtility.isFunction(generator) && generator.name)?generator.name:(shUtility.isArray(name)?(name[name.length-1].name):null))),
 			fn = generator || name;
-		this.logger.info('Component name: '+n);
-		this.logger.debug('Component generator: '+fn);
+		this.l.info('Component name: '+n);
+		this.l.debug('Component generator: '+fn);
 		if (!shUtility.isString(n)){
-			this.logger.error('Component has no name',n);
+			this.l.error('Component has no name',n);
 			throw new Error('Component has no name'); 
 		}
 		if (!fn){
-			this.logger.error('No injectable provided');
+			this.l.error('No injectable provided');
 			throw new Error('No injectable provided'); 
 		}
 		if (!shUtility.isFunction(fn) && !shUtility.isArray(fn)){
-			this.injectables[name] = fn; 
+			this.inj[name] = fn; 
 		}else {
-			this.components[n] = fn;
+			this.cpts[n] = fn;
 		}
 		return this;
 	},
@@ -98,21 +102,21 @@ shInjector.prototype = {
 		var i;
 		if ((i = this.stack.indexOf(name)) != -1){
 			var z = this.stack.slice(i).join(' -> ');
-			this.logger.error('Circular dependency '+z+' -> '+name);
+			this.l.error('Circular dependency '+z+' -> '+name);
 			throw new Error('Circular dependency '+z+' -> '+name);
 		}
 		this.stack.push(name); 
-		if (this.injectables[name]){
+		if (this.inj[name]){
 			this.stack.pop();
-			return this.injectables[name]; 
-		}else if (this.components[name]){
-			var deps = this.getDependencies(this.components[name],name),
-				comp = this.components[name],
+			return this.inj[name]; 
+		}else if (this.cpts[name]){
+			var deps = this.getDependencies(this.cpts[name],name),
+				comp = this.cpts[name],
 				fn = shUtility.isArray(comp)?comp[comp.length-1]:comp;
 			this.stack.pop();
-			return (this.injectables[name] = fn.apply(this,deps)); 
+			return (this.inj[name] = fn.apply(this,deps)); 
 		}else {
-			this.logger.error('Component `'+name+'` is not registered.');
+			this.l.error('Component `'+name+'` is not registered.');
 			throw new Error('Component `'+name+'` is not registered.');
 		}
 
@@ -138,7 +142,7 @@ shInjector.prototype = {
 				try{
 					depsObjs.push(self.get(e));
 				}catch(err){
-					if (self.strict){
+					if (self.s){
 						throw err;
 					}else {
 						self.logger.error('Component `'+fnName+'` could not be instanitated because one of its dependencies could not be found: '+err.message);

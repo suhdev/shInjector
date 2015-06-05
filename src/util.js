@@ -1,33 +1,36 @@
-var shUtility = {
+var c = Object.prototype.toString,
+	d = function isSth(o,e){
+		return c.call(o) === '[object '+e+']';
+	},shUtility = {
 	map:function(arr,fn){
-		var a = []; 
-		for(var key in arr){
-			a[key] = fn(arr[key]); 
+		var a = [],k; 
+		for(k in arr){
+			a[k] = fn(arr[k]); 
 		}
 		return a; 
 	},
-	reduce:function(arr,fn,start){
-		var a = start; 
-		for(var key in arr){
-			a = fn(a,arr[key]); 
+	reduce:function(arr,fn,s){
+		var a = s,k; 
+		for(k in arr){
+			a = fn(a,arr[k]); 
 		}
 		return a;
 	},
 	isString:function(t){
-		return Object.prototype.toString.call(t) === '[object String]';
+		return d(t,'String');
 	},
 	isArray:function(t){
-		return Object.prototype.toString.call(t) === '[object Array]';
+		return d(t,'Array');
 	},
 	isObject:function(t){
-		return Object.prototype.toString.call(t) === '[object Object]';
+		return d(t,'Object');
 	},
 	isFunction:function(t){
-		return Object.prototype.toString.call(t) === '[object Function]'; 
+		return d(t,'Function');
 	},
 	forEach:function(arr,fn){
-		for(var key in arr){
-			fn(arr[key],key); 
+		for(var k in arr){
+			fn(arr[k],k); 
 		}
 	}
 };
