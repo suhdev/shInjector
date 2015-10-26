@@ -2,7 +2,7 @@
   "name": "sh-injector",
   "version": "1.0.0",
   "description": "A simple dependency injection module for both browser and node applications. ",
-  "main": "shinjector.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
