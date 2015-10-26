@@ -154,6 +154,7 @@ shInjector.prototype = {
 		}
 		return depsObjs;
 	}
+  }
   var objectTypes = {
     'function': true,
     'object': true
