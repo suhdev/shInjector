@@ -1,4 +1,5 @@
-var c = Object.prototype.toString,
+(function(){
+	var c = Object.prototype.toString,
 	d = function isSth(o,e){
 		return c.call(o) === '[object '+e+']';
 	},shUtility = {
@@ -146,12 +147,37 @@ shInjector.prototype = {
 						throw err;
 					}else {
 						self.l.error('Component `'+fnName+'` could not be instanitated because one of its dependencies could not be found: '+err.message);
-						
+						console.log(err);
 					}
 				}
 			});
 		}
 		return depsObjs;
 	}
+  var objectTypes = {
+    'function': true,
+    'object': true
+  };
+  var freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
+  var freeModule = objectTypes[typeof module] && module && !module.nodeType && module;
+  var freeGlobal = freeExports && freeModule && typeof global == 'object' && global && global.Object && global;
+  var freeSelf = objectTypes[typeof self] && self && self.Object && self;
+  var freeWindow = objectTypes[typeof window] && window && window.Object && window;
+  var moduleExports = freeModule && freeModule.exports === freeExports && freeExports;
+  var root = freeGlobal || ((freeWindow !== (this && this.window)) && freeWindow) || freeSelf || this;
 
-};
+  if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+    root.shInjector = shInjector;
+    define(function() {
+      return shInjector;
+    });
+  } else if (freeExports && freeModule) {
+    if (moduleExports) {
+      (freeModule.exports = shInjector).shInjector = shInjector;
+    } else {
+      freeExports.shInjector = shInjector;
+    }
+  } else {
+    root.shInjector = shInjector;
+  }
+})();

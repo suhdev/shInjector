@@ -1,0 +1,28 @@
+{
+  "name": "sh-injector",
+  "version": "1.0.0",
+  "description": "A simple dependency injection module for both browser and node applications. ",
+  "main": "shinjector.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "karma"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suhdev/shInjector.git"
+  },
+  "keywords": [
+    "di",
+    "dependency",
+    "injection",
+    "ioc"
+  ],
+  "author": "Suhail Abood <suhail.abood@gmail.com> (suhailabood.me)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/suhdev/shInjector/issues"
+  },
+  "homepage": "https://github.com/suhdev/shInjector#readme"
+}
